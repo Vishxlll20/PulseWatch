@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
+import monitorRoutes from "./routes/monitor.routes.js";
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.get("/api/protected", authMiddleware, (req, res) => {
 app.get("/", (req, res) => {
   res.send("PulseWatch API running");
 });
+app.use("/api/monitor", monitorRoutes);
 
 export default app;
