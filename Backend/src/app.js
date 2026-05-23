@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
 import monitorRoutes from "./routes/monitor.routes.js";
+import logRoutes from "./routes/log.routes.js";
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.get("/", (req, res) => {
   res.send("PulseWatch API running");
 });
 app.use("/api/monitor", monitorRoutes);
+app.use("/api/logs", logRoutes);
 
 export default app;

@@ -1,5 +1,6 @@
 import axios from "axios";
 import Monitor from "../models/monitor.model.js";
+import Log from "../models/log.model.js";
 
 const checkMonitor = async (monitorId) => {
   try {
@@ -25,6 +26,13 @@ const checkMonitor = async (monitorId) => {
     monitor.lastChecked = new Date();
 
     await monitor.save();
+    await Log.create({
+      monitor: monitor._id,
+      status: "UP",
+      statusCode: response.status,
+      responseTime: endTime - startTime,
+      message: "Monitor is healthy",
+    });
 
     console.log(`${monitor.name} is UP`);
   } catch (error) {
@@ -38,6 +46,13 @@ const checkMonitor = async (monitorId) => {
     monitor.lastChecked = new Date();
 
     await monitor.save();
+    await Log.create({
+      monitor: monitor._id,
+      status: "DOWN",
+      statusCode: error.response?.status || 500,
+      responseTime: 0,
+      message: error.message,
+    });
 
     console.log(`${monitor.name} is DOWN`);
   }
