@@ -44,10 +44,20 @@ const monitorSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    
+    responseTime: {
+      type: Number,
+      default: 0,
+    },
+
+    statusCode: {
+      type: Number,
+      default: null,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Monitor = mongoose.model("Monitor", monitorSchema);

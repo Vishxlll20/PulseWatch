@@ -1,4 +1,5 @@
 import Monitor from "../models/monitor.model.js";
+import checkMonitor from "../services/monitor.service.js";
 
 export const createMonitor = async (req, res) => {
   try {
@@ -34,6 +35,29 @@ export const getUserMonitors = async (req, res) => {
     res.status(200).json({
       success: true,
       monitors,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const runMonitorCheck = async (req, res) => {
+  try {
+    const { monitorId } = req.params;
+
+    await checkMonitor(monitorId);
+
+    const updatedMonitor = await Monitor.findById(
+      monitorId
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Monitor checked successfully",
+      monitor: updatedMonitor,
     });
   } catch (error) {
     res.status(500).json({
