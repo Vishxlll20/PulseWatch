@@ -10,7 +10,7 @@ import {
 
 const router = express.Router();
 
-router.post("/create", authMiddleware, createMonitor);
+router.post("/create", createMonitor);
 
 router.get("/", getUserMonitors);
 
