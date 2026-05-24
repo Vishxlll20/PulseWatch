@@ -2,6 +2,7 @@ import axios from "axios";
 import Monitor from "../models/monitor.model.js";
 import Log from "../models/log.model.js";
 import Incident from "../models/incident.model.js";
+import { getIO } from "../socket/socket.js";
 
 const checkMonitor = async (monitorId) => {
   try {
@@ -27,6 +28,15 @@ const checkMonitor = async (monitorId) => {
     monitor.lastChecked = new Date();
 
     await monitor.save();
+
+    const io = getIO();
+
+    io.emit("monitor-update", {
+      monitorId: monitor._id,
+      status: monitor.status,
+      responseTime: monitor.responseTime,
+      statusCode: monitor.statusCode,
+    });
 
     const ongoingIncident = await Incident.findOne({
       monitor: monitor._id,
@@ -76,6 +86,16 @@ const checkMonitor = async (monitorId) => {
     }
 
     await monitor.save();
+
+    const io = getIO();
+
+    io.emit("monitor-update", {
+      monitorId: monitor._id,
+      status: monitor.status,
+      responseTime: monitor.responseTime,
+      statusCode: monitor.statusCode,
+    });
+    
     await Log.create({
       monitor: monitor._id,
       status: "DOWN",
