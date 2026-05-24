@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post("/create", authMiddleware, createMonitor);
 
-router.get("/", authMiddleware, getUserMonitors);
+router.get("/", getUserMonitors);
 
 router.post("/:monitorId/run", authMiddleware, runMonitorCheck);
 

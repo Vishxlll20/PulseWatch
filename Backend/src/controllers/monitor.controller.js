@@ -28,9 +28,7 @@ export const createMonitor = async (req, res) => {
 
 export const getUserMonitors = async (req, res) => {
   try {
-    const monitors = await Monitor.find({
-      user: req.user.id,
-    });
+    const monitors = await Monitor.find();
 
     res.status(200).json({
       success: true,
@@ -50,9 +48,7 @@ export const runMonitorCheck = async (req, res) => {
 
     await checkMonitor(monitorId);
 
-    const updatedMonitor = await Monitor.findById(
-      monitorId
-    );
+    const updatedMonitor = await Monitor.findById(monitorId);
 
     res.status(200).json({
       success: true,
