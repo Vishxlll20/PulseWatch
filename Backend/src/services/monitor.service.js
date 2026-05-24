@@ -1,6 +1,7 @@
 import axios from "axios";
 import Monitor from "../models/monitor.model.js";
 import Log from "../models/log.model.js";
+import Incident from "../models/incident.model.js";
 
 const checkMonitor = async (monitorId) => {
   try {
@@ -26,6 +27,20 @@ const checkMonitor = async (monitorId) => {
     monitor.lastChecked = new Date();
 
     await monitor.save();
+
+    const ongoingIncident = await Incident.findOne({
+      monitor: monitor._id,
+      status: "ONGOING",
+    });
+
+    if (ongoingIncident) {
+      ongoingIncident.status = "RESOLVED";
+      ongoingIncident.resolvedAt = new Date();
+
+      await ongoingIncident.save();
+
+      console.log(`Incident resolved for ${monitor.name}`);
+    }
     await Log.create({
       monitor: monitor._id,
       status: "UP",
@@ -44,6 +59,21 @@ const checkMonitor = async (monitorId) => {
     monitor.statusCode = error.response?.status || 500;
     monitor.responseTime = 0;
     monitor.lastChecked = new Date();
+
+    const existingIncident = await Incident.findOne({
+      monitor: monitor._id,
+      status: "ONGOING",
+    });
+
+    if (!existingIncident) {
+      await Incident.create({
+        monitor: monitor._id,
+        type: "DOWN",
+        message: `${monitor.name} is down`,
+      });
+
+      console.log(`Incident created for ${monitor.name}`);
+    }
 
     await monitor.save();
     await Log.create({
