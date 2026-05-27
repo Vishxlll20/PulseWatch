@@ -1,50 +1,114 @@
+import React from 'react';
 import {
   LayoutDashboard,
   Activity,
-  AlertTriangle,
+  Shield,
+  Settings,
+  LogOut,
   BarChart3,
   Bell,
-  Settings,
-} from "lucide-react";
+  X
+} from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/hooks/useAuth';
 
-function Sidebar() {
+const Sidebar = ({ isOpen, onClose }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logoutUser } = useAuth();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/login');
+  };
+
+  const handleLinkClick = () => {
+    // Close sidebar on mobile after nav
+    if (onClose) onClose();
+  };
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
+    { icon: Activity, label: 'Monitors', path: '/dashboard/monitors' },
+    { icon: Shield, label: 'Incidents', path: '/dashboard/incidents' },
+    { icon: Bell, label: 'Alerts', path: '/dashboard/alerts' },
+    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
+  ];
+
   return (
-    <div className="w-[260px] bg-[#0B1220] border-r border-[#1E293B] h-screen fixed left-0 top-0 px-6 py-8">
-      <h1 className="text-3xl font-bold mb-12">PulseWatch</h1>
-
-      <div className="space-y-3">
-        <div className="bg-blue-600 px-4 py-3 rounded-xl flex items-center gap-3">
-          <LayoutDashboard size={20} />
-          <span>Dashboard</span>
+    <>
+      {/* Sidebar panel */}
+      <div
+        className={`
+          fixed top-0 left-0 z-50 h-full w-64
+          bg-[#3E2522] text-cream
+          flex flex-col p-6 shadow-2xl border-r border-white/5
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:static lg:z-auto lg:flex lg:flex-shrink-0
+        `}
+      >
+        {/* Header: Logo + mobile close button */}
+        <div className="flex items-center justify-between mb-10 px-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-cream rounded-xl flex items-center justify-center shadow-lg shadow-black/20">
+              <Activity size={24} className="text-primary" />
+            </div>
+            <span className="text-xl font-bold tracking-tight">PulseWatch</span>
+          </div>
+          {/* Close button — mobile only */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-lg text-rose/60 hover:text-cream hover:bg-white/10 transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="px-4 py-3 rounded-xl flex items-center gap-3 text-gray-400 hover:bg-[#111827] hover:text-white transition">
-          <Activity size={20} />
-          <span>Monitors</span>
+        {/* Nav links */}
+        <div className="flex-1 space-y-2">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.label}
+                to={item.path}
+                onClick={handleLinkClick}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all group ${
+                  isActive
+                    ? 'bg-cream text-primary font-bold shadow-lg shadow-black/20'
+                    : 'hover:bg-cream/10 text-rose'
+                }`}
+              >
+                <item.icon size={20} className={isActive ? 'text-primary' : 'group-hover:text-cream'} />
+                <span className="text-sm font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
 
-        <div className="px-4 py-3 rounded-xl flex items-center gap-3 text-gray-400 hover:bg-[#111827] hover:text-white transition">
-          <AlertTriangle size={20} />
-          <span>Incidents</span>
-        </div>
-
-        <div className="px-4 py-3 rounded-xl flex items-center gap-3 text-gray-400 hover:bg-[#111827] hover:text-white transition">
-          <BarChart3 size={20} />
-          <span>Analytics</span>
-        </div>
-
-        <div className="px-4 py-3 rounded-xl flex items-center gap-3 text-gray-400 hover:bg-[#111827] hover:text-white transition">
-          <Bell size={20} />
-          <span>Alerts</span>
-        </div>
-
-        <div className="px-4 py-3 rounded-xl flex items-center gap-3 text-gray-400 hover:bg-[#111827] hover:text-white transition">
-          <Settings size={20} />
-          <span>Settings</span>
+        {/* Bottom actions */}
+        <div className="space-y-2 pt-6 border-t border-cream/10">
+          <Link
+            to="/dashboard/settings"
+            onClick={handleLinkClick}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-cream/10 text-rose transition-all group"
+          >
+            <Settings size={20} className="group-hover:text-cream" />
+            <span className="text-sm font-medium">Settings</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-cream/10 text-rose transition-all group"
+          >
+            <LogOut size={20} className="group-hover:text-cream" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
 
 export default Sidebar;
