@@ -83,8 +83,8 @@ export const createMonitor = async (req, res, next) => {
       timeout,
       interval: finalInterval,
 
-      //  critical for scheduler
-      nextRunAt: new Date(Date.now() + finalInterval * 1000)
+      //  🔥 Start checking immediately (don't wait for interval)
+      nextRunAt: new Date()
     });
 
     res.status(201).json(monitor);
@@ -120,7 +120,7 @@ export const updateMonitor = async (req, res, next) => {
   try {
     const updateData = { ...req.body };
 
-    // 🔥 interval update must reset schedule
+    //  interval update must reset schedule
     if (req.body.interval !== undefined) {
       const interval = Number(req.body.interval);
 
@@ -153,7 +153,7 @@ export const updateMonitor = async (req, res, next) => {
 };
 
 /**
- * DELETE MONITOR
+ *  DELETE MONITOR
  */
 export const deleteMonitor = async (req, res, next) => {
   try {
@@ -215,7 +215,7 @@ export const toggleMonitor = async (req, res, next) => {
 /**
  *  MANUAL CHECK (force run)
  */
-import checkMonitor  from "../services/monitorService.js";
+import { checkMonitor } from "../services/monitorService.js";
 
 export const runMonitorNow = async (req, res, next) => {
   try {
@@ -233,6 +233,59 @@ export const runMonitorNow = async (req, res, next) => {
     res.json({
       message: "Monitor executed successfully",
       result
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * DEBUG: Get monitor status info for troubleshooting
+ */
+export const getDebugInfo = async (req, res, next) => {
+  try {
+    const { monitorId } = req.params;
+    
+    const monitor = await monitorModel.findOne({
+      _id: monitorId,
+      userId: req.user._id
+    }).lean();
+
+    if (!monitor) {
+      return res.status(404).json({ error: "Monitor not found" });
+    }
+
+    // Get recent logs
+    const recentLogs = await logModel.find({ monitorId })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    // Get active incidents
+    const activeIncidents = await incidentModel.find({
+      monitorId,
+      resolved: false
+    }).lean();
+
+    res.json({
+      monitor: {
+        _id: monitor._id,
+        name: monitor.name,
+        url: monitor.url,
+        status: monitor.status,
+        isActive: monitor.isActive,
+        interval: monitor.interval,
+        nextRunAt: monitor.nextRunAt,
+        lastChecked: monitor.lastChecked
+      },
+      recentLogs: recentLogs.map(log => ({
+        status: log.status,
+        responseTime: log.responseTime,
+        errorMessage: log.errorMessage,
+        createdAt: log.createdAt
+      })),
+      activeIncidents,
+      totalLogs: await logModel.countDocuments({ monitorId })
     });
   } catch (err) {
     next(err);
