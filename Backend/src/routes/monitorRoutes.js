@@ -7,6 +7,7 @@ import {
   deleteMonitor,
   toggleMonitor,
   runMonitorNow,
+  getDebugInfo
 } from "../controllers/monitorcontroller.js";
 
 import { validateMonitor } from "../validators/monitorValidator.js";
@@ -16,12 +17,12 @@ import {
   getMonitorLimiter,
   createMonitorLimiter,
   updateMonitorLimiter,
-  deleteMonitorLimiter,
+  deleteMonitorLimiter
 } from "../middlewares/ratelimiter.js";
 
 const router = express.Router();
 
-//  GET ALL
+// GET ALL
 router.get("/", authMiddleware, getMonitorLimiter, getAllMonitors);
 
 //  CREATE
@@ -30,19 +31,19 @@ router.post(
   authMiddleware,
   createMonitorLimiter,
   validateMonitor,
-  createMonitor,
+  createMonitor
 );
 
 //  GET ONE
 router.get("/:monitorId", authMiddleware, getMonitorLimiter, getMonitorById);
 
-//  UPDATE
+// UPDATE
 router.put(
   "/:monitorId/update",
   authMiddleware,
   updateMonitorLimiter,
   validateMonitor,
-  updateMonitor,
+  updateMonitor
 );
 
 //  DELETE
@@ -50,11 +51,14 @@ router.delete(
   "/:monitorId/delete",
   authMiddleware,
   deleteMonitorLimiter,
-  deleteMonitor,
+  deleteMonitor
 );
 
-//  MANUAL RUN
+// MANUAL RUN
 router.post("/:monitorId/run", authMiddleware, runMonitorNow);
+
+// DEBUG INFO
+router.get("/:monitorId/debug", authMiddleware, getDebugInfo);
 
 //  PAUSE / RESUME
 router.patch("/:monitorId/toggle", authMiddleware, toggleMonitor);
