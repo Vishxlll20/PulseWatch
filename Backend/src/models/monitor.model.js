@@ -75,7 +75,7 @@ const monitorSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster cron queries
+// 🔥 Index for faster cron queries
 monitorSchema.index({ isActive: 1, nextRunAt: 1 });
 const Monitor = mongoose.model("Monitor", monitorSchema);
 

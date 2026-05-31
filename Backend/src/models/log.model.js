@@ -32,10 +32,10 @@ const logSchema = new mongoose.Schema({
   timestamps: true
 });
 
-//  Query optimization
+// 🔥 Query optimization
 logSchema.index({ monitorId: 1, createdAt: -1 });
 
-//  AUTO DELETE OLD LOGS (TTL)
+// 🔥 AUTO DELETE OLD LOGS (TTL)
 logSchema.index(
   { createdAt: 1 },
   { expireAfterSeconds: 60 * 60 * 24 * 7 } // 7 days

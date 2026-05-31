@@ -30,7 +30,7 @@ const incidentSchema = new mongoose.Schema({
     index: true
   },
 
-  //  structured AI output (key upgrade)
+  // 🔥 structured AI output (key upgrade)
   ai: {
     summary: String,
     rootCause: String,
@@ -41,7 +41,7 @@ const incidentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-//  fast query for active incident
+// 🔥 fast query for active incident
 incidentSchema.index({ monitorId: 1, resolved: 1 });
 const IncidentModel = mongoose.model("Incident", incidentSchema);
 
