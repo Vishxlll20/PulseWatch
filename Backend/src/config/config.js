@@ -35,6 +35,8 @@ const config = {
     CLIENT_URL: process.env.CLIENT_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
-    EMAIL_FROM: process.env.EMAIL_FROM
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    GMAIL_USER: process.env.GMAIL_USER,
+    GMAIL_PASS: process.env.GMAIL_PASS
 };
 export default config;
