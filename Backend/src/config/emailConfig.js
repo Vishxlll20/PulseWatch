@@ -1,5 +1,12 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import config from "./config.js";
 
-const resend = new Resend(config.RESEND_API_KEY);
-export default resend;
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: config.GMAIL_USER,
+    pass: config.GMAIL_PASS,
+  },
+});
+
+export default transporter;
