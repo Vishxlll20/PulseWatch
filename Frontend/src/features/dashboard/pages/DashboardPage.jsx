@@ -20,7 +20,7 @@ import toast from 'react-hot-toast';
 
 const DashboardPage = () => {
   const pageRef = useRef(null);
-  const { monitors, fetchMonitors } = useMonitor();
+  const { monitors, fetchMonitors, loading: monitorsLoading } = useMonitor();
   const { incidents, loading: incidentsLoading, fetchAllIncidents } = useIncident();
   const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
@@ -30,10 +30,28 @@ const DashboardPage = () => {
 
     const handleIncidentUpdate = (data) => {
       if (!data.resolved) {
-        toast.error(`🚨 ${data.type} - Monitor incident detected`);
+        // Show in-app toast notification
+        toast.error(`🚨 ${data.type} - Monitor incident detected`, {
+          duration: 5000,
+          position: 'top-right'
+        });
+        
+        // Show browser notification if user has granted permission
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('PulseWatch Alert', {
+            body: `${data.type}: A monitor has gone ${data.type}!`,
+            icon: '/icon.png',
+            tag: `incident-${data.monitorId}`,
+            requireInteraction: true
+          });
+        }
+        
         fetchAllIncidents();
       } else {
-        toast.success(`✅ Incident resolved`);
+        toast.success(`✅ Incident resolved`, {
+          duration: 4000,
+          position: 'top-right'
+        });
         fetchAllIncidents();
       }
     };
@@ -44,6 +62,17 @@ const DashboardPage = () => {
       socketService.off('incidentUpdate', handleIncidentUpdate);
     };
   }, [fetchAllIncidents, fetchMonitors]);
+
+  // Request notification permission on component mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Browser notifications enabled');
+        }
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -207,7 +236,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Real-time Status Table */}
-        <RealTimeStatus monitors={monitors} />
+        <RealTimeStatus monitors={monitors} fetchMonitors={fetchMonitors} loading={monitorsLoading} />
       </div>
     </DashboardLayout>
   );

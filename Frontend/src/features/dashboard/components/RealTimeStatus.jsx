@@ -1,7 +1,21 @@
-import React from 'react';
-import { MoreHorizontal, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { MoreHorizontal, ChevronRight, RefreshCw } from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const RealTimeStatus = ({ monitors = [] }) => {
+const RealTimeStatus = ({ monitors = [], fetchMonitors, loading = false }) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchMonitors();
+      toast.success('Monitors refreshed');
+    } catch (error) {
+      console.error('Refresh failed:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
   const rows = monitors.map((monitor) => ({
     id: monitor._id,
     name: monitor.name || monitor.url,
@@ -48,9 +62,19 @@ const RealTimeStatus = ({ monitors = [] }) => {
           <h2 className="text-lg sm:text-xl font-bold text-cream">Real-time status</h2>
           <p className="text-rose text-sm font-medium mt-1 opacity-80">Live across {rows.length} monitors</p>
         </div>
-        <button className="flex items-center gap-1 text-sm font-bold text-cream hover:text-white transition-colors">
-          View all <ChevronRight size={16} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing || loading}
+            className="p-2 text-cream hover:text-white hover:bg-white/10 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh monitor status"
+          >
+            <RefreshCw size={18} className={isRefreshing || loading ? 'animate-spin' : ''} />
+          </button>
+          <button className="flex items-center gap-1 text-sm font-bold text-cream hover:text-white transition-colors">
+            View all <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Scrollable table wrapper */}
