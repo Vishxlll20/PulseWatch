@@ -115,3 +115,72 @@ export const getActiveIncidentForMonitor = async (req, res, next) => {
         next(err);
     }
 };
+
+// Get only unresolved incidents for all monitors (for Alert Center)
+export const getUnresolvedIncidents = async (req, res, next) => {
+    try {
+        // Get all monitors for the user
+        const monitors = await monitorModel.find({ userId: req.user._id }).select('_id').lean();
+        const monitorIds = monitors.map(m => m._id);
+
+        if (monitorIds.length === 0) {
+            return res.json([]);
+        }
+
+        // Get only unresolved incidents for all user's monitors
+        const incidents = await incidentModel
+            .find({ monitorId: { $in: monitorIds }, resolved: false })
+            .sort({ startTime: -1 })
+            .lean();
+
+        // Populate monitor details for each incident
+        const incidentsWithDetails = await Promise.all(
+            incidents.map(async (incident) => {
+                const monitor = await monitorModel.findById(incident.monitorId).select('name url').lean();
+                return {
+                    ...incident,
+                    monitorName: monitor?.name || 'Unknown Monitor',
+                    monitorUrl: monitor?.url || '#'
+                };
+            })
+        );
+
+        res.json(incidentsWithDetails);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getAllIncidents = async (req, res, next) => {
+    try {
+        // Get all monitors for the user
+        const monitors = await monitorModel.find({ userId: req.user._id }).select('_id').lean();
+        const monitorIds = monitors.map(m => m._id);
+
+        if (monitorIds.length === 0) {
+            return res.json([]);
+        }
+
+        // Get all incidents for all user's monitors
+        const incidents = await incidentModel
+            .find({ monitorId: { $in: monitorIds } })
+            .sort({ startTime: -1 })
+            .lean();
+
+        // Populate monitor details for each incident
+        const incidentsWithDetails = await Promise.all(
+            incidents.map(async (incident) => {
+                const monitor = await monitorModel.findById(incident.monitorId).select('name url').lean();
+                return {
+                    ...incident,
+                    monitorName: monitor?.name || 'Unknown Monitor',
+                    monitorUrl: monitor?.url || '#'
+                };
+            })
+        );
+
+        res.json(incidentsWithDetails);
+    } catch (err) {
+        next(err);
+    }
+};

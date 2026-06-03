@@ -60,8 +60,10 @@ export const createMonitor = async (req, res, next) => {
       body,
       expectedStatus,
       timeout,
-      interval
+      interval,
+      alertEmail
     } = req.body;
+    console.log("📧 alertEmail received:", alertEmail);
 
     //  default + validation
     const finalInterval = interval || 15;
@@ -82,6 +84,7 @@ export const createMonitor = async (req, res, next) => {
       expectedStatus,
       timeout,
       interval: finalInterval,
+      alertEmail,
 
       //  🔥 Start checking immediately (don't wait for interval)
       nextRunAt: new Date()

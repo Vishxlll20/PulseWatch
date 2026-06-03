@@ -1,12 +1,18 @@
 import express from "express";
-import {getIncidentsForMonitor,getActiveIncidentForMonitor,resolveIncident,deleteIncidentsForMonitor} from "../controllers/incidentController.js";
+import {getIncidentsForMonitor,getActiveIncidentForMonitor,resolveIncident,deleteIncidentsForMonitor,getAllIncidents,getUnresolvedIncidents} from "../controllers/incidentController.js";
 import { authMiddleware } from "../middlewares/authmiddleware.js";
 import { incidentReadLimiter,incidentWriteLimiter } from "../middlewares/ratelimiter.js";
 
 const router = express.Router();
 
 // ORDER MATTERS: Put specific routes BEFORE generic ones!
-// Specific routes first
+// Get only unresolved incidents (for Alert Center)
+router.get("/unresolved", authMiddleware, incidentReadLimiter, getUnresolvedIncidents);
+
+// Get all incidents across all monitors
+router.get("/all", authMiddleware, incidentReadLimiter, getAllIncidents);
+
+// Specific routes
 router.post("/resolve/:incidentId", authMiddleware, incidentWriteLimiter, resolveIncident);
 router.get("/active/:monitorId", authMiddleware, incidentReadLimiter, getActiveIncidentForMonitor);
 
