@@ -3,7 +3,7 @@ import Incident from "../models/incident.model.js";
 import Monitor from "../models/monitor.model.js";
 import { getIO } from "../socket/socket.js";
 import { generateSummary } from "./aiService.js";
-import { notifyIncidentCreated, notifyIncidentResolved } from "./alertService.js";
+import { notifyIncidentResolved } from "./alertService.js";
 
 // tune these once
 // LOWERED FOR TESTING - normally you'd keep this higher
@@ -47,7 +47,8 @@ export const handleIncident = async (monitorId) => {
 
       // fire-and-forget AI (don't block)
       generateAISummary(monitorId, incident._id).catch(() => { });
-      notifyIncidentCreated({ monitorId, type, startTime: incident.startTime  }).catch(() => { });
+      // NOTE: Email will be sent by cron job after 3+ minutes, not immediately
+      // notifyIncidentCreated({ monitorId, type, startTime: incident.startTime  }).catch(() => { });
 
       // realtime notify (best-effort) - broadcast to all connected clients
       try {
