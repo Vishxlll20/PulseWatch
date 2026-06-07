@@ -17,6 +17,7 @@ import Layout from "../features/admin/Layout";
 import Monitors from "../features/admin/monitors/pages/Monitors";
 import UsersPage from "../features/admin/users/pages/UsersPage";
 import ProtectedRoute from '../components/ProtectedRoute';
+import GoogleCallback from '../features/auth/pages/GoogleCallback';
 
 const routes = createBrowserRouter([
     { path: '/', element: <LandingPage /> },
@@ -25,6 +26,7 @@ const routes = createBrowserRouter([
     { path: '/forgot-password', element: <ForgotPassword /> },
     { path: '/verify-otp', element: <VerifyOtp /> },
     { path: '/reset-password', element: <ResetPassword /> },
+    { path: '/auth/google/callback', element: <GoogleCallback /> },
     { 
         path: '/dashboard', 
         element: <ProtectedRoute><DashboardPage /></ProtectedRoute> 
