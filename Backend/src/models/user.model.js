@@ -34,7 +34,9 @@ const userSchema = new mongoose.Schema({
     resetOtpAttempts: {
         type: Number,
         default: 0           // max 5 attempts allowed
-    }
+    },
+    googleId: { type: String, default: undefined },
+    password: { type: String, required: false },
 
 }, {
     timestamps: true
@@ -42,7 +44,7 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function () {
-    if (!this.isModified('password')) return;
+  if (!this.isModified('password') || !this.password) return; 
 
     try {
         const salt = await bcrypt.genSalt(10);

@@ -37,6 +37,12 @@ export const validateMonitor = [
     .isInt({ min: 100 })
     .withMessage("Timeout must be >= 100ms"),
 
+  body("alertEmail")
+  .optional()
+  .isEmail()
+  .withMessage("Alert email must be a valid email address")
+  .normalizeEmail(),
+
   body("interval")
     .optional()
     .isInt({ min: 5 })
@@ -47,7 +53,7 @@ export const validateMonitor = [
     .isDate()
     .withMessage("Next run time must be a valid date"),
 
-  //  validation result handler
+  // 🔥 validation result handler
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
