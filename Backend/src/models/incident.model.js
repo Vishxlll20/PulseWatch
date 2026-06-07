@@ -35,6 +35,12 @@ const incidentSchema = new mongoose.Schema({
     summary: String,
     rootCause: String,
     suggestion: String
+  },
+
+  // 📧 track if 3-minute email sent
+  emailSent: {
+    type: Boolean,
+    default: false
   }
 
 }, {

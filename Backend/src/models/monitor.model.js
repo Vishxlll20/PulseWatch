@@ -41,6 +41,13 @@ const monitorSchema = new mongoose.Schema({
     default: 200
   },
 
+  alertEmail: {
+    type: String,
+    trim: true
+    // Optional: custom email for this monitor's alerts
+    // Falls back to user's registered email if not provided
+  },
+
   timeout: {
     type: Number,
     default: 5000
