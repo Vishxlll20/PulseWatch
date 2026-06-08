@@ -10,7 +10,7 @@ let isAnalyticsRunning = false;
 
 const startCron = () => {
 
-  // 🔥 SMART MONITOR SCHEDULER
+  //  SMART MONITOR SCHEDULER
   cron.schedule("*/15 * * * * *", async () => {
     if (isMonitoringRunning) return;
 
@@ -51,7 +51,7 @@ const startCron = () => {
             const result = await checkMonitor(monitor);
             console.log(`  ✓ ${monitor.name}: ${result.status} (${result.responseTime}ms)${result.errorMessage ? ` - Error: ${result.errorMessage}` : ''}`);
 
-            // 🔥 FIXED SCHEDULING (NO DRIFT)
+            //  FIXED SCHEDULING (NO DRIFT)
             monitor.nextRunAt = new Date(
               monitor.nextRunAt.getTime() + monitor.interval * 1000
             );
@@ -68,7 +68,7 @@ const startCron = () => {
     }
   });
 
-  // 🔥 ANALYTICS
+  //  ANALYTICS
   cron.schedule("0 * * * *", async () => {
     if (isAnalyticsRunning) return;
 
@@ -83,13 +83,12 @@ const startCron = () => {
     }
   });
 
-  // 🔥 CHECK FOR 3-MINUTE DOWNTIME THRESHOLD
+  //  CHECK FOR 3-MINUTE DOWNTIME THRESHOLD
   cron.schedule("*/30 * * * * *", async () => {
     try {
       const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000); // 3 minutes
 
       // Find unresolved incidents that started 3+ minutes ago and haven't sent email yet
-      // Use $ne: true to match both missing emailSent field and false values
       const incidents = await Incident.find({
         resolved: false,
         emailSent: { $ne: true },
@@ -102,18 +101,36 @@ const startCron = () => {
 
         for (const incident of incidents) {
           try {
+            // 💡 FIX: Atomically lock the document BEFORE sending the email.
+            // This prevents duplicate cron runs from picking it up.
+            const lockedIncident = await Incident.findOneAndUpdate(
+              { _id: incident._id, emailSent: { $ne: true } }, 
+              { $set: { emailSent: true } },
+              { new: true }
+            );
+
+            // If another cron execution or a deletion process got to it first, skip safely
+            if (!lockedIncident) {
+              console.log(`⏭️ Incident ${incident._id} already claimed or deleted. Skipping.`);
+              continue;
+            }
+
+            // Now safely trigger the alert knowing no other thread will touch it
             await notifyIncident3MinDown({
               monitorId: incident.monitorId,
               type: incident.type,
               startTime: incident.startTime
             });
 
-            // Mark as sent
-            incident.emailSent = true;
-            await incident.save();
             console.log(`✅ 3-minute email sent for incident ${incident._id}`);
           } catch (err) {
             console.error(`Failed to send 3-minute alert for incident ${incident._id}:`, err.message);
+            
+            // Optional Rollback: If email delivery completely failed, unlock it so it can retry next run
+            await Incident.updateOne(
+              { _id: incident._id, resolved: false }, 
+              { $set: { emailSent: false } }
+            ).catch(() => {});
           }
         }
       }
