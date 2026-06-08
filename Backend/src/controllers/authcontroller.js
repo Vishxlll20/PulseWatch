@@ -163,7 +163,7 @@ const forgetPassword = async (req, res, next) => {
     await transporter.sendMail({
       from: config.EMAIL,
       to: user.email,
-      subject: "Password Reset OTP - Upzy",
+      subject: "Password Reset OTP - PulseWatch",
       html: `
                 <h2>Hello ${user.username},</h2>
                 <p>Your password reset OTP is:</p>

@@ -83,7 +83,7 @@ const ResetPassword = () => {
             <div className="text-center mt-12 space-y-3 animate-item">
               <h2 className="text-4xl font-bold text-cream tracking-tight">Almost Done</h2>
               <p className="text-rose max-w-[320px] mx-auto text-sm leading-relaxed font-medium">
-                Create a strong password to secure your Upzy account.
+                Create a strong password to secure your PulseWatch account.
               </p>
             </div>
           </div>

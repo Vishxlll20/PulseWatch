@@ -1,7 +1,7 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 /**
- * 🔑 Default key generator
+ *  Default key generator
  * - Authenticated → userId
  * - Guest → safe IP (IPv6 handled)
  */
@@ -13,7 +13,7 @@ const keyGenerator = (req) => {
 };
 
 /**
- * 🔐 LOGIN (STRICT + email-based)
+ *  LOGIN (STRICT + email-based)
  * Important: req.user doesn't exist here
  */
 const loginKeyGenerator = (req) => {
@@ -32,7 +32,7 @@ export const loginLimiter = rateLimit({
 });
 
 /**
- * 🔐 REGISTER
+ *  REGISTER
  */
 export const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -46,7 +46,7 @@ export const registerLimiter = rateLimit({
 });
 
 /**
- * ⚙️ MONITORS
+ *  MONITORS
  */
 export const createMonitorLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -76,7 +76,7 @@ export const getMonitorLimiter = rateLimit({
 });
 
 /**
- * 📄 LOGS
+ *  LOGS
  */
 export const logsReadLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -92,7 +92,7 @@ export const logsDeleteLimiter = rateLimit({
 });
 
 /**
- * 🚨 INCIDENTS
+ *  INCIDENTS
  */
 export const incidentReadLimiter = rateLimit({
   windowMs: 60 * 1000,
