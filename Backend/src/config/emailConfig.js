@@ -13,3 +13,5 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false
   }
 });
+
+export default transporter;
