@@ -3,15 +3,13 @@ import config from "./config.js";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // Must be false for port 587
+  port: 465,        // ← change from 587 to 465
+  secure: true,     // ← change from false to true
   auth: {
     user: config.GMAIL_USER,
-    pass: config.GMAIL_PASS, // Make sure this is your 16-character Google App Password!
+    pass: config.GMAIL_PASS,
   },
   tls: {
-    rejectUnauthorized: false // Prevents Render from blocking the connection over SSL mismatches
+    rejectUnauthorized: false
   }
 });
-
-export default transporter;
