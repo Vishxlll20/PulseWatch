@@ -8,10 +8,10 @@ import config from "../config/config.js";
 const sendEmailAlert = async ({ to, subject, html }) => {
   try {
     await transporter.sendMail({
-      from: `"PulseWatch" <${config.GMAIL_USER}>`,
+      from: `"PulseWatch" <onboarding@resend.dev>`,
       to,
       subject,
-      html
+      html,
     });
     console.log(`📧 Alert email sent to ${to}`);
   } catch (err) {
